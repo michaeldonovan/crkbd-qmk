@@ -93,26 +93,6 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     }
 }
 
-
-void oled_render_layer_state(void) {
-    oled_write_ln_P(PSTR("Layer "), false);
-    switch (layer_state) {
-        case _BASE:
-            oled_write_ln_P(PSTR(" Base"), false);
-            break;
-        case _NAV:
-            oled_write_ln_P(PSTR(" Nav"), false);
-            break;
-        case _SYM:
-            oled_write_ln_P(PSTR(" Sym"), false);
-            break;
-        case _ADJ:
-            oled_write_ln_P(PSTR(" Adj"), false);
-            break;
-    }
-}
-
-
 char keylog_str[24] = {};
 
 const char code_to_name[60] = {
@@ -132,37 +112,44 @@ void set_keylog(uint16_t keycode, keyrecord_t *record) {
   }
 
   // update keylog
-  snprintf(keylog_str, sizeof(keylog_str), "\n %c", name);
+  snprintf(keylog_str, sizeof(keylog_str), "    %c", name);
 }
 
 void render_keylogger_status(void) {
-    oled_write_P(PSTR("KLogr"), false);
+    oled_write_ln_P(PSTR("Key"), false); 
+    oled_write_P(PSTR("\n"), false);
     oled_write(keylog_str, false);
 }
 
-void render_default_layer_state(void) {
-    oled_write_P(PSTR("Lyout"), false);
-    switch (get_highest_layer(default_layer_state)) {
+void oled_render_layer_state(void) {
+    oled_write_ln_P(PSTR("Layer"), false);
+    switch (get_highest_layer(layer_state)) {
         case _BASE:
-            oled_write_P(PSTR(" QRTY"), false);
+            oled_write_ln_P(PSTR(" BASE"), false);
+            break;
+        case _NAV:
+            oled_write_ln_P(PSTR("  NAV"), false);
+            break;
+        case _SYM:
+            oled_write_ln_P(PSTR("  SYM"), false);
+            break;
+        case _ADJ:
+            oled_write_ln_P(PSTR("  ADJ"), false);
             break;
     }
-}
-
-void render_layer_state(void) {
-    oled_write_P(PSTR("LAYER"), false);
-    oled_write_P(PSTR("Nav"), layer_state_is(_NAV));
-    oled_write_P(PSTR("Sym"), layer_state_is(_SYM));
+    oled_write_P(PSTR("\n"), false);
 }
 
 
 void render_mod_status(uint8_t modifiers) {
-    oled_write_P(PSTR("Mods:"), false);
+    oled_write_ln_P(PSTR("Mods"), false);
+    oled_write_P(PSTR("\n"), false);
     oled_write_P(PSTR(" "), false);
     oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
     oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
     oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
     oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
+    oled_write_P(PSTR("\n\n"), false);
 }
 
 void render_bootmagic_status(bool status) {
@@ -189,19 +176,13 @@ void oled_render_logo(void) {
     oled_write_P(crkbd_logo, false);
 }
 
-void render_status_main(void) {
-    /* Show Keyboard Layout  */
-    render_default_layer_state();
-    render_mod_status(get_mods());
-    // render_bootmagic_status();
-
-    render_keylogger_status();
-}
 
 
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
-        render_status_main();  // Renders the current keyboard state (layer, lock, caps, scroll, etc)
+        oled_render_layer_state();
+        render_mod_status(get_mods());
+        render_keylogger_status();
     } else {
 //        oled_render_logo();
     }
