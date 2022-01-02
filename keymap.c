@@ -41,7 +41,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       ESC_CTL,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
 
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
+      KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),LT(0, KC_V),    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -53,9 +53,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_TAB,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                         KC_J,    KC_L,    KC_U,    KC_Y,   KC_SCLN,  KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       ESC_CTL,    KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                         KC_M,    KC_N,    KC_E,    KC_I,    KC_O, KC_QUOT,
-
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,                         KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
+      KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),KC_D,LT(0, KC_V),                         KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -99,7 +98,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
-#ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     if (is_keyboard_master()) {
         return OLED_ROTATION_270;
@@ -223,9 +221,29 @@ bool oled_task_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (record->event.pressed) {
-      add_keylog(keycode);
-  }
+    if (record->event.pressed) {
+        add_keylog(keycode);
+    }
+
+    switch (keycode) {
+        case LT(0,KC_X):
+            if (!record->tap.count && record->event.pressed) {
+                tap_code16(C(KC_X)); // Intercept hold function to send Ctrl-X
+                return false;
+            }
+            return true;             // Return true for normal processing of tap keycode
+        case LT(0,KC_C):
+            if (!record->tap.count && record->event.pressed) {
+                tap_code16(C(KC_C)); // Intercept hold function to send Ctrl-C
+                return false;
+            }
+            return true;             // Return true for normal processing of tap keycode
+        case LT(0,KC_V):
+            if (!record->tap.count && record->event.pressed) {
+                tap_code16(C(KC_V)); // Intercept hold function to send Ctrl-V
+                return false;
+            }
+            return true;             // Return true for normal processing of tap keycode
+    }
   return true;
 }
-#endif // OLED_ENABLE
