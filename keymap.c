@@ -43,7 +43,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),LT(0, KC_V),    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
+                                         KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
                                       //`--------------------------'  `--------------------------'
 
   ),
@@ -110,7 +110,7 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 char     keylog_str[KEYLOG_LEN] = {};
 uint8_t  keylogs_str_idx        = 0;
 uint16_t log_timer              = 0;
-uint16_t log_timeout            = 150;
+uint16_t log_timeout            = 100;
 
 const char code_to_name[60] = {
     ' ', ' ', ' ', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
