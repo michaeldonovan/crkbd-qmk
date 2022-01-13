@@ -2,29 +2,30 @@
 Copyright 2019 @foostan
 Copyright 2020 Drashna Jaelre <@drashna>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
+CHis program is free software: you can redistribute it and/or modify
+it under CHe terms of CHe GNU General Public License as published by
+CHe Free Software Foundation, eiCHer version 2 of CHe License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+CHis program is distributed in CHe hope CHat it will be useful,
+but WICHOUT ANY WARRANTY; wiCHout even CHe implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See CHe
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of CHe GNU General Public License
+along wiCH CHis program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
+#include "quantum_keycodes.h"
 #include <stdio.h>
 
 #define NAV MO(_NAV)
-#define SYM MO(_SYM)
+#define SYM MO(_SYM) 
 #define FUNC MO(_FUNC)
 
-// custom tap/hold
-#define TH(kc) LT(0, kc)
+// tap -> kc, hold -> lctl
+#define CH(kc) LT(0, kc)
 
 #define ESC_CTL LCTL_T(KC_ESC)
 
@@ -36,15 +37,16 @@ enum layers {
    _FUNC
 };
 
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
+   CH(KC_TAB),    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P, CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      ESC_CTL,TH(KC_A),TH(KC_S),    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
+      ESC_CTL,  KC_A, CH(KC_S),    KC_D,CH(KC_F),    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
 
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,TH(KC_X),TH(KC_C),TH(KC_V),    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
+      KC_LSFT,    KC_Z,CH(KC_X),CH(KC_C),CH(KC_V),    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                          KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -53,11 +55,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_COLEMAKDH] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                         KC_J,    KC_L,    KC_U,    KC_Y, KC_SCLN, KC_BSPC,
+       KC_TAB,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                         KC_J,    KC_L,    KC_U,    KC_Y, KC_SCLN,CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       ESC_CTL,    KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                         KC_M,    KC_N,    KC_E,    KC_I,    KC_O, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),KC_D,LT(0, KC_V),                    KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,  KC_DEL,
+      KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),KC_D,LT(0, KC_V),                    KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -66,11 +68,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_NAV] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_GRV,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         KC_6,    KC_7,    KC_8,    KC_9,    KC_0, KC_BSPC,
+       KC_GRV,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         KC_6,    KC_7,    KC_8,    KC_9,    KC_0,CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       ESC_CTL, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX,                      KC_LEFT, KC_DOWN,   KC_UP,KC_RIGHT, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_HOME, KC_PGDN, KC_PGUP,  KC_END, KC_SLSH,  KC_DEL,
+      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_HOME, KC_PGDN, KC_PGUP,  KC_END, KC_SLSH,CH(KC_DEL),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,     FUNC,  KC_ENT,     KC_SPC, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -78,7 +80,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_SYM] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_GRV, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                      KC_CIRC, KC_AMPR, KC_ASTR, KC_MINS,  KC_EQL, KC_BSPC,
+       KC_GRV, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                      KC_CIRC, KC_AMPR, KC_ASTR, KC_MINS,  KC_EQL, CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       ESC_CTL, XXXXXXX, KC_LBRC, KC_LCBR, KC_LPRN,   KC_LT,                        KC_GT, KC_RPRN, KC_RCBR, KC_RBRC, XXXXXXX, KC_BSLS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -221,42 +223,24 @@ bool oled_task_user(void) {
     return false;
 }
 
+
+bool is_ctl_hold(uint16_t kc) {
+    return (kc & 0xFF00) == QK_LAYER_TAP; // LT(0, x)
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         add_keylog(keycode);
     }
-
-    switch (keycode) {
-        case LT(0,KC_X):
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(C(KC_X)); // Intercept hold function to send Ctrl-X
-                return false;
-            }
-            return true;             // Return true for normal processing of tap keycode
-        case LT(0,KC_C):
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(C(KC_C)); // Intercept hold function to send Ctrl-C
-                return false;
-            }
-            return true;             // Return true for normal processing of tap keycode
-        case LT(0,KC_V):
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(C(KC_V)); // Intercept hold function to send Ctrl-V
-                return false;
-            }
-            return true;             // Return true for normal processing of tap keycode
-        case LT(0,KC_S):
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(C(KC_S)); // Intercept hold function to send Ctrl-V
-                return false;
-            }
-            return true;             // Return true for normal processing of tap keycode
-        case LT(0,KC_A):
-            if (!record->tap.count && record->event.pressed) {
-                tap_code16(C(KC_A)); // Intercept hold function to send Ctrl-V
-                return false;
-            }
-            return true;             // Return true for normal processing of tap keycode
+    if (is_ctl_hold(keycode))
+    {
+        // get base keycode, no quantum 
+        uint16_t kc = 0xFF & keycode;
+        if (!record->tap.count && record->event.pressed) {
+            tap_code16(C(kc)); // Intercept hold function to send Ctrl-X
+            return false;
+        }
+        return true;             // Return true for normal processing of tap keycode
     }
   return true;
 }
