@@ -20,8 +20,12 @@ along wiCH CHis program.  If not, see <http://www.gnu.org/licenses/>.
 #include "quantum_keycodes.h"
 #include <stdio.h>
 
-#define NAV MO(_NAV)
-#define SYM MO(_SYM) 
+#ifdef OLED_ENABLE
+static uint32_t oled_timer = 0;
+#endif
+
+#define RAISE MO(_RAISE)
+#define LOWER MO(_LOWER) 
 #define FUNC MO(_FUNC)
 
 // tap -> kc, hold -> lctl
@@ -32,8 +36,8 @@ along wiCH CHis program.  If not, see <http://www.gnu.org/licenses/>.
 enum layers {
    _QWERTY = 0,
    _COLEMAKDH,
-   _NAV,
-   _SYM,
+   _RAISE,
+   _LOWER,
    _FUNC
 };
 
@@ -48,11 +52,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,CH(KC_X),CH(KC_C),CH(KC_V),    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                         KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
+                                         KC_LGUI,   LOWER,  KC_ENT,     KC_SPC,   RAISE, KC_RALT
                                       //`--------------------------'  `--------------------------'
 
   ),
 
+    // try colemak, should be better fit based on usage 
   [_COLEMAKDH] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
        KC_TAB,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                         KC_J,    KC_L,    KC_U,    KC_Y, KC_SCLN,CH(KC_BSPC),
@@ -61,12 +66,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),KC_D,LT(0, KC_V),                    KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI,   SYM,  KC_ENT,     KC_SPC,   NAV, KC_RALT
+                                          KC_LGUI,   LOWER,  KC_ENT,     KC_SPC,   RAISE, KC_RALT
                                       //`--------------------------'  `--------------------------'
 
   ),
 
-  [_NAV] = LAYOUT_split_3x6_3(
+  [_RAISE] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
        KC_GRV,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         KC_6,    KC_7,    KC_8,    KC_9,    KC_0,CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -78,150 +83,237 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [_SYM] = LAYOUT_split_3x6_3(
+  [_LOWER] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
        KC_GRV, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                      KC_CIRC, KC_AMPR, KC_ASTR, KC_MINS,  KC_EQL, CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       ESC_CTL, XXXXXXX, KC_LBRC, KC_LCBR, KC_LPRN,   KC_LT,                        KC_GT, KC_RPRN, KC_RCBR, KC_RBRC, XXXXXXX, KC_BSLS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_UNDS, KC_PLUS, XXXXXXX, XXXXXXX, KC_PIPE, KC_TILD,
+      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_UNDS, KC_PLUS,   KC_LT,   KC_GT, KC_PIPE, KC_TILD,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI, _______,  KC_ENT,     KC_SPC,     FUNC, KC_RALT
+                                          KC_LGUI, _______,  KC_ENT,  CH(KC_BSPC),     FUNC, KC_RALT
                                       //`--------------------------'  `--------------------------'
   ),
 
   [_FUNC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        RESET,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                        KC_F6,   KC_F7,   KC_F8, XXXXXXX, XXXXXXX, KC_PAUS,
+        RESET,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      XXXXXXX, KC_BTN1, KC_MS_U, KC_BTN2, XXXXXXX, KC_PAUS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      ESC_CTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                        KC_F9,  KC_F10,  KC_F11, XXXXXXX, XXXXXXX, XXXXXXX,
+      ESC_CTL, KC_F6,   KC_F7,   KC_F8, XXXXXXX, XXXXXXX,                        KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX,  KC_F12, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      KC_LSFT,   KC_F9,  KC_F10,  KC_F11,  KC_F12, XXXXXXX,                      XXXXXXX,  KC_F12, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_ENT,     KC_SPC, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
   )
 };
 
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (is_keyboard_master()) {
-        return OLED_ROTATION_270;
+#ifdef OLED_ENABLE
+oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_270; }
+
+void render_space(void) {
+    oled_write_P(PSTR("     "), false);
+}
+
+void render_mod_status_gui_alt(uint8_t modifiers) {
+    static const char PROGMEM gui_off_1[] = {0x85, 0x86, 0};
+    static const char PROGMEM gui_off_2[] = {0xa5, 0xa6, 0};
+    static const char PROGMEM gui_on_1[] = {0x8d, 0x8e, 0};
+    static const char PROGMEM gui_on_2[] = {0xad, 0xae, 0};
+
+    static const char PROGMEM alt_off_1[] = {0x87, 0x88, 0};
+    static const char PROGMEM alt_off_2[] = {0xa7, 0xa8, 0};
+    static const char PROGMEM alt_on_1[] = {0x8f, 0x90, 0};
+    static const char PROGMEM alt_on_2[] = {0xaf, 0xb0, 0};
+
+    // fillers between the modifier icons bleed into the icon frames
+    static const char PROGMEM off_off_1[] = {0xc5, 0};
+    static const char PROGMEM off_off_2[] = {0xc6, 0};
+    static const char PROGMEM on_off_1[] = {0xc7, 0};
+    static const char PROGMEM on_off_2[] = {0xc8, 0};
+    static const char PROGMEM off_on_1[] = {0xc9, 0};
+    static const char PROGMEM off_on_2[] = {0xca, 0};
+    static const char PROGMEM on_on_1[] = {0xcb, 0};
+    static const char PROGMEM on_on_2[] = {0xcc, 0};
+
+    if(modifiers & MOD_MASK_GUI) {
+        oled_write_P(gui_on_1, false);
     } else {
-        return rotation;
-    }
-}
-
-#define KEYLOG_LEN 5
-char     keylog_str[KEYLOG_LEN] = {};
-uint8_t  keylogs_str_idx        = 0;
-uint16_t log_timer              = 0;
-uint16_t log_timeout            = 100;
-
-const char code_to_name[60] = {
-    ' ', ' ', ' ', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
-    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-    'R', 'E', 'B', 'T', '_', '-', '=', '[', ']', '\\',
-    '#', ';', '\'', '`', ',', '.', '/', ' ', ' ', ' '};
-
-
-void add_keylog(uint16_t keycode) {
-    if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) || (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) {
-        keycode = keycode & 0xFF;
+        oled_write_P(gui_off_1, false);
     }
 
-    for (uint8_t i = KEYLOG_LEN - 1; i > 0; i--) {
-        keylog_str[i] = keylog_str[i - 1];
-    }
-    if (keycode < 60) {
-        keylog_str[0] = code_to_name[keycode];
-    }
-    keylog_str[KEYLOG_LEN - 1] = 0;
-
-    log_timer = timer_read();
-}
-
-
-void update_log(void) {
-    if (timer_elapsed(log_timer) > log_timeout) {
-        add_keylog(0);
-    }
-}
-
-
-void render_keylogger_status(void) {
-    oled_write_ln_P(PSTR("Key"), false); 
-    oled_write_P(PSTR("\n"), false);
-    oled_write(keylog_str, false);
-}
-
-void oled_render_layer_state(void) {
-    oled_write_ln_P(PSTR("Layer"), false);
-    switch (get_highest_layer(layer_state)) {
-        case _QWERTY:
-            oled_write_ln_P(PSTR(" BASE"), false);
-            break;
-        case _NAV:
-            oled_write_ln_P(PSTR("  NAV"), false);
-            break;
-        case _SYM:
-            oled_write_ln_P(PSTR("  SYM"), false);
-            break;
-        case _FUNC:
-            oled_write_ln_P(PSTR(" FUNC"), false);
-            break;
-    }
-    oled_write_P(PSTR("\n"), false);
-}
-
-
-void render_mod_status(uint8_t modifiers) {
-    oled_write_ln_P(PSTR("Mods"), false);
-    oled_write_P(PSTR("\n"), false);
-    oled_write_P(PSTR(" "), false);
-    oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
-    oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
-    oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
-    oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
-    oled_write_P(PSTR("\n\n"), false);
-}
-
-void render_bootmagic_status(bool status) {
-    /* Show Ctrl-Gui Swap options */
-    static const char PROGMEM logo[][2][3] = {
-        {{0x97, 0x98, 0}, {0xb7, 0xb8, 0}},
-        {{0x95, 0x96, 0}, {0xb5, 0xb6, 0}},
-    };
-    if (status) {
-        oled_write_ln_P(logo[0][0], false);
-        oled_write_ln_P(logo[0][1], false);
+    if ((modifiers & MOD_MASK_GUI) && (modifiers & MOD_MASK_ALT)) {
+        oled_write_P(on_on_1, false);
+    } else if(modifiers & MOD_MASK_GUI) {
+        oled_write_P(on_off_1, false);
+    } else if(modifiers & MOD_MASK_ALT) {
+        oled_write_P(off_on_1, false);
     } else {
-        oled_write_ln_P(logo[1][0], false);
-        oled_write_ln_P(logo[1][1], false);
+        oled_write_P(off_off_1, false);
+    }
+
+    if(modifiers & MOD_MASK_ALT) {
+        oled_write_P(alt_on_1, false);
+    } else {
+        oled_write_P(alt_off_1, false);
+    }
+
+    if(modifiers & MOD_MASK_GUI) {
+        oled_write_P(gui_on_2, false);
+    } else {
+        oled_write_P(gui_off_2, false);
+    }
+
+    if (modifiers & MOD_MASK_GUI & MOD_MASK_ALT) {
+        oled_write_P(on_on_2, false);
+    } else if(modifiers & MOD_MASK_GUI) {
+        oled_write_P(on_off_2, false);
+    } else if(modifiers & MOD_MASK_ALT) {
+        oled_write_P(off_on_2, false);
+    } else {
+        oled_write_P(off_off_2, false);
+    }
+
+    if(modifiers & MOD_MASK_ALT) {
+        oled_write_P(alt_on_2, false);
+    } else {
+        oled_write_P(alt_off_2, false);
     }
 }
 
-void oled_render_logo(void) {
-    static const char PROGMEM crkbd_logo[] = {
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94,
-        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4,
-        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4,
-        0};
-    oled_write_P(crkbd_logo, false);
+void render_mod_status_ctrl_shift(uint8_t modifiers) {
+    static const char PROGMEM ctrl_off_1[] = {0x89, 0x8a, 0};
+    static const char PROGMEM ctrl_off_2[] = {0xa9, 0xaa, 0};
+    static const char PROGMEM ctrl_on_1[] = {0x91, 0x92, 0};
+    static const char PROGMEM ctrl_on_2[] = {0xb1, 0xb2, 0};
+
+    static const char PROGMEM shift_off_1[] = {0x8b, 0x8c, 0};
+    static const char PROGMEM shift_off_2[] = {0xab, 0xac, 0};
+    static const char PROGMEM shift_on_1[] = {0xcd, 0xce, 0};
+    static const char PROGMEM shift_on_2[] = {0xcf, 0xd0, 0};
+
+    // fillers between the modifier icons bleed into the icon frames
+    static const char PROGMEM off_off_1[] = {0xc5, 0};
+    static const char PROGMEM off_off_2[] = {0xc6, 0};
+    static const char PROGMEM on_off_1[] = {0xc7, 0};
+    static const char PROGMEM on_off_2[] = {0xc8, 0};
+    static const char PROGMEM off_on_1[] = {0xc9, 0};
+    static const char PROGMEM off_on_2[] = {0xca, 0};
+    static const char PROGMEM on_on_1[] = {0xcb, 0};
+    static const char PROGMEM on_on_2[] = {0xcc, 0};
+
+    if(modifiers & MOD_MASK_CTRL) {
+        oled_write_P(ctrl_on_1, false);
+    } else {
+        oled_write_P(ctrl_off_1, false);
+    }
+
+    if ((modifiers & MOD_MASK_CTRL) && (modifiers & MOD_MASK_SHIFT)) {
+        oled_write_P(on_on_1, false);
+    } else if(modifiers & MOD_MASK_CTRL) {
+        oled_write_P(on_off_1, false);
+    } else if(modifiers & MOD_MASK_SHIFT) {
+        oled_write_P(off_on_1, false);
+    } else {
+        oled_write_P(off_off_1, false);
+    }
+
+    if(modifiers & MOD_MASK_SHIFT) {
+        oled_write_P(shift_on_1, false);
+    } else {
+        oled_write_P(shift_off_1, false);
+    }
+
+    if(modifiers & MOD_MASK_CTRL) {
+        oled_write_P(ctrl_on_2, false);
+    } else {
+        oled_write_P(ctrl_off_2, false);
+    }
+
+    if (modifiers & MOD_MASK_CTRL & MOD_MASK_SHIFT) {
+        oled_write_P(on_on_2, false);
+    } else if(modifiers & MOD_MASK_CTRL) {
+        oled_write_P(on_off_2, false);
+    } else if(modifiers & MOD_MASK_SHIFT) {
+        oled_write_P(off_on_2, false);
+    } else {
+        oled_write_P(off_off_2, false);
+    }
+
+    if(modifiers & MOD_MASK_SHIFT) {
+        oled_write_P(shift_on_2, false);
+    } else {
+        oled_write_P(shift_off_2, false);
+    }
+}
+
+void render_logo(void) {
+    static const char PROGMEM corne_logo[] = {
+        0x80, 0x81, 0x82, 0x83, 0x84,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4,
+        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0};
+    oled_write_P(corne_logo, false);
+    oled_write_P(PSTR("corne"), false);
+}
+
+void render_layer_state(void) {
+    static const char PROGMEM default_layer[] = {
+        0x20, 0x94, 0x95, 0x96, 0x20,
+        0x20, 0xb4, 0xb5, 0xb6, 0x20,
+        0x20, 0xd4, 0xd5, 0xd6, 0x20, 0};
+    static const char PROGMEM raise_layer[] = {
+        0x20, 0x97, 0x98, 0x99, 0x20,
+        0x20, 0xb7, 0xb8, 0xb9, 0x20,
+        0x20, 0xd7, 0xd8, 0xd9, 0x20, 0};
+    static const char PROGMEM lower_layer[] = {
+        0x20, 0x9a, 0x9b, 0x9c, 0x20,
+        0x20, 0xba, 0xbb, 0xbc, 0x20,
+        0x20, 0xda, 0xdb, 0xdc, 0x20, 0};
+    static const char PROGMEM FUNCust_layer[] = {
+        0x20, 0x9d, 0x9e, 0x9f, 0x20,
+        0x20, 0xbd, 0xbe, 0xbf, 0x20,
+        0x20, 0xdd, 0xde, 0xdf, 0x20, 0};
+    if(layer_state_is(_FUNC)) {
+        oled_write_P(FUNCust_layer, false);
+    } else if(layer_state_is(_LOWER)) {
+        oled_write_P(lower_layer, false);
+    } else if(layer_state_is(_RAISE)) {
+        oled_write_P(raise_layer, false);
+    } else {
+        oled_write_P(default_layer, false);
+    }
+}
+
+void render_status_main(void) {
+    render_logo();
+    render_space();
+    render_layer_state();
+    render_space();
+    render_mod_status_gui_alt(get_mods()|get_oneshot_mods());
+    render_mod_status_ctrl_shift(get_mods()|get_oneshot_mods());
+}
+
+
+void suspend_power_down_user() {
+    oled_off();
 }
 
 bool oled_task_user(void) {
-    update_log();
+    if (timer_elapsed32(oled_timer) > 30000) {
+        oled_off();
+        return false;
+    }
+#ifndef SPLIT_KEYBOARD
+    else { oled_on(); }
+#endif
+
     if (is_keyboard_master()) {
-        oled_render_layer_state();
-        render_mod_status(get_mods());
-        render_keylogger_status();
-    } else {
-//        oled_render_logo();
+        render_status_main();  // Renders the current keyboard state (layer, lock, caps, scroll, etc)
     }
     return false;
 }
+
+#endif
 
 
 bool is_ctl_hold(uint16_t kc) {
@@ -230,7 +322,10 @@ bool is_ctl_hold(uint16_t kc) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
-        add_keylog(keycode);
+#ifdef OLED_ENABLE
+        oled_timer = timer_read32();
+#endif
+    // set_timelog();
     }
     if (is_ctl_hold(keycode))
     {

@@ -32,6 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define AUTO_SHIFT_REPEAT
 
+#define IGNORE_MOD_TAP_INTERRUPT  
+
+#define MOUSEKEY_DELAY          0
+#define MOUSEKEY_INTERVAL       16
+// #define MOUSEKEY_MOVE_DELTA     20
+#define MOUSEKEY_MAX_SPEED      5
+#define MOUSEKEY_TIME_TO_MAX    64
+
 // #define TAPPING_FORCE_HOLD
 #define TAPPING_TERM 250
 #define TAPPING_TOGGLE 3
@@ -46,4 +54,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     #define RGBLIGHT_VAL_STEP 17
 #endif
 
-#define OLED_FONT_H "keyboards/crkbd/lib/glcdfont.c"
+// #define OLED_FONT_H "keyboards/crkbd/lib/glcdfont.c"
+#define OLED_FONT_H "keyboards/crkbd/keymaps/michaeldonovan/glcdfont.c"
