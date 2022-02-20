@@ -25,7 +25,7 @@ static uint32_t oled_timer = 0;
 #endif
 
 #define RAISE MO(_RAISE)
-#define LOWER MO(_LOWER) 
+#define LOWER MO(_LOWER)
 #define FUNC MO(_FUNC)
 
 // tap -> kc, hold -> lctl
@@ -47,7 +47,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
    CH(KC_TAB),    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P, CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-   ESC_CTL,LGUI_T(KC_A),LALT_T(KC_S),LCTL_T(KC_D),LSFT_T(KC_F),KC_G,            KC_H,RSFT_T(KC_J),RCTL_T(KC_K),RALT_T(KC_L),RGUI_T(KC_SCLN), KC_QUOT,
+      ESC_CTL,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
 
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,CH(KC_X),CH(KC_C),CH(KC_V),    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
@@ -57,14 +57,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   ),
 
-    // try colemak, should be better fit based on usage 
+  // colemak-DHm
   [_COLEMAKDH] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
        KC_TAB,    KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                         KC_J,    KC_L,    KC_U,    KC_Y, KC_SCLN,CH(KC_BSPC),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       ESC_CTL,    KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                         KC_M,    KC_N,    KC_E,    KC_I,    KC_O, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,LT(0, KC_X),LT(0, KC_C),KC_D,LT(0, KC_V),                    KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
+      KC_LSFT,    KC_Z,CH(KC_X),CH(KC_C),    KC_D,CH(KC_V),                         KC_K,    KC_H, KC_COMM,  KC_DOT, KC_SLSH,CH(KC_DEL),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   LOWER,  KC_ENT,     KC_SPC,   RAISE, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -97,11 +97,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_FUNC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        RESET,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      XXXXXXX, KC_BTN1, KC_MS_U, KC_BTN2, XXXXXXX, KC_PAUS,
+        RESET,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                        KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, KC_PAUS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      ESC_CTL, KC_F6,   KC_F7,   KC_F8, XXXXXXX, XXXXXXX,                        KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R, XXXXXXX, XXXXXXX,
+      ESC_CTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX,   KC_F9,  KC_F10,  KC_F11, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,   KC_F9,  KC_F10,  KC_F11,  KC_F12, XXXXXXX,                      XXXXXXX,  KC_F12, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX,  KC_F12,  XXXXXXX, XXXXXXX, TG(_COLEMAKDH),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_ENT,     KC_SPC, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -284,6 +284,15 @@ void render_layer_state(void) {
     }
 }
 
+void render_layout_state(void) {
+    oled_write_ln_P(PSTR(""), false);
+    if(layer_state_is(_COLEMAKDH)) {
+        oled_write_P(PSTR("Colmk"), false);
+    } else if(layer_state_is(_QWERTY)) {
+        oled_write_P(PSTR("Qwrty"), false);
+    }
+}
+
 void render_status_main(void) {
     render_logo();
     render_space();
@@ -291,6 +300,7 @@ void render_status_main(void) {
     render_space();
     render_mod_status_gui_alt(get_mods()|get_oneshot_mods());
     render_mod_status_ctrl_shift(get_mods()|get_oneshot_mods());
+    render_layout_state();
 }
 
 
@@ -329,7 +339,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     if (is_ctl_hold(keycode))
     {
-        // get base keycode, no quantum 
+        // get base keycode, no quantum
         uint16_t kc = 0xFF & keycode;
         if (!record->tap.count && record->event.pressed) {
             tap_code16(C(kc)); // Intercept hold function to send Ctrl-X

@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define AUTO_SHIFT_REPEAT
 
-#define IGNORE_MOD_TAP_INTERRUPT  
+#define IGNORE_MOD_TAP_INTERRUPT
 
 #define MOUSEKEY_DELAY          0
 #define MOUSEKEY_INTERVAL       16
@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MOUSEKEY_TIME_TO_MAX    64
 
 // #define TAPPING_FORCE_HOLD
-#define TAPPING_TERM 250
+#define TAPPING_TERM 200
 #define TAPPING_TOGGLE 3
 
 #ifdef RGBLIGHT_ENABLE
